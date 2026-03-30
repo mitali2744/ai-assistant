@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+assistant.db
+xp_data.json
+productivity_report.png
+dataset_insights.png

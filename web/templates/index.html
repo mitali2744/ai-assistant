@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aria - AI Academic Assistant</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="logo-icon">A</div>
+        <div><h1>Aria</h1><p>AI Academic Assistant</p></div>
+      </div>
+      <div class="status-card">
+        <h3>Your Stats</h3>
+        <div class="stat"><span>Pending</span><span id="stat-pending" class="badge orange">-</span></div>
+        <div class="stat"><span>Completed</span><span id="stat-completed" class="badge green">-</span></div>
+        <div class="stat" id="due-today-section" style="display:none">
+          <span>Due Today</span><span id="stat-due" class="badge red">-</span>
+        </div>
+      </div>
+      <div class="xp-card">
+        <h3>Progress</h3>
+        <p id="xp-status">Loading...</p>
+      </div>
+      <div class="commands-card">
+        <h3>Quick Commands</h3>
+        <button class="cmd-btn" onclick="sendQuick('show tasks')">Show Tasks</button>
+        <button class="cmd-btn" onclick="sendQuick('productivity')">Productivity</button>
+        <button class="cmd-btn" onclick="sendQuick('deadlines')">Deadlines</button>
+        <button class="cmd-btn" onclick="sendQuick('schedule')">Schedule</button>
+        <button class="cmd-btn" onclick="sendQuick('quote')">Quote</button>
+        <button class="cmd-btn" onclick="sendQuick('recommend')">Recommend</button>
+        <button class="cmd-btn" onclick="sendQuick('quiz me')">Quiz Me</button>
+        <button class="cmd-btn" onclick="sendQuick('show flashcards')">Flashcards</button>
+        <button class="cmd-btn" onclick="sendQuick('list groups')">Study Groups</button>
+        <button class="cmd-btn" onclick="sendQuick('help')">Help</button>
+      </div>
+    </aside>
+    <main class="chat-area">
+      <div class="chat-header">
+        <div class="avatar">A</div>
+        <div><h2>Aria</h2><span class="online">Online</span></div>
+      </div>
+      <div class="messages" id="messages">
+        <div class="message aria">
+          <div class="bubble">
+            Hello! I am <strong>Aria</strong>, your AI academic assistant.<br/>
+            Type a message or use the quick commands on the left to get started.
+          </div>
+        </div>
+      </div>
+      <div class="input-area">
+        <input type="text" id="user-input" placeholder="Type a message... e.g. add task study ML" autocomplete="off"/>
+        <button id="send-btn" onclick="sendMessage()">Send</button>
+      </div>
+    </main>
+  </div>
+  <script src="/static/script.js"></script>
+</body>
+</html>

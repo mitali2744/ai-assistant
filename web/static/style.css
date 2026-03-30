@@ -1,0 +1,206 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #0f0f1a;
+  color: #e0e0e0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app {
+  display: flex;
+  height: 100vh;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 280px;
+  background: #16162a;
+  border-right: 1px solid #2a2a45;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 16px;
+  overflow-y: auto;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #2a2a45;
+}
+
+.logo-icon {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: bold; color: white;
+}
+
+.logo h1 { font-size: 20px; color: #fff; }
+.logo p  { font-size: 11px; color: #888; }
+
+.status-card, .xp-card, .commands-card {
+  background: #1e1e35;
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid #2a2a45;
+}
+
+.status-card h3, .xp-card h3, .commands-card h3 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 14px;
+}
+
+.badge {
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+}
+.badge.green  { background: #14532d; color: #4ade80; }
+.badge.orange { background: #431407; color: #fb923c; }
+.badge.red    { background: #450a0a; color: #f87171; }
+
+.xp-card p { font-size: 12px; color: #aaa; line-height: 1.6; }
+
+.cmd-btn {
+  display: block;
+  width: 100%;
+  background: #2a2a45;
+  border: 1px solid #3a3a60;
+  color: #c4c4e0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 13px;
+  margin-bottom: 6px;
+  transition: background 0.2s;
+}
+.cmd-btn:hover { background: #3a3a60; color: #fff; }
+
+/* ── Chat area ── */
+.chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #0f0f1a;
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  background: #16162a;
+  border-bottom: 1px solid #2a2a45;
+}
+
+.avatar {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: bold; color: white; font-size: 18px;
+}
+
+.chat-header h2 { font-size: 16px; color: #fff; }
+.online { font-size: 12px; color: #4ade80; }
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message { display: flex; }
+.message.user  { justify-content: flex-end; }
+.message.aria  { justify-content: flex-start; }
+
+.bubble {
+  max-width: 70%;
+  padding: 12px 16px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.message.user .bubble {
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.message.aria .bubble {
+  background: #1e1e35;
+  color: #e0e0e0;
+  border: 1px solid #2a2a45;
+  border-bottom-left-radius: 4px;
+}
+
+.typing .bubble {
+  color: #888;
+  font-style: italic;
+}
+
+/* ── Input ── */
+.input-area {
+  display: flex;
+  gap: 10px;
+  padding: 16px 24px;
+  background: #16162a;
+  border-top: 1px solid #2a2a45;
+}
+
+.input-area input {
+  flex: 1;
+  background: #1e1e35;
+  border: 1px solid #3a3a60;
+  color: #e0e0e0;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.2s;
+}
+.input-area input:focus { border-color: #7c3aed; }
+.input-area input::placeholder { color: #555; }
+
+#send-btn {
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: opacity 0.2s;
+}
+#send-btn:hover { opacity: 0.85; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #3a3a60; border-radius: 3px; }
