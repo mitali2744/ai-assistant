@@ -5,7 +5,7 @@ from core.quotes import get_random_quote
 from core.scheduler import check_deadlines, generate_study_schedule, predict_completion
 from core.dataset_analysis import get_study_recommendation, predict_grade, cluster_student_profile, show_dataset_insights, get_exam_insights, get_dataset_summary
 from core.flashcards import add_flashcard, show_flashcards, start_quiz, check_answer, is_quiz_active, delete_flashcard
-from core.groups import register_user, create_group, join_group, add_group_task, show_group_tasks, complete_group_task, group_productivity, list_groups
+from core.groups import register_user, create_group, join_group, add_group_task, show_group_tasks, complete_group_task, group_productivity, list_groups, add_member, show_members, get_group_activity
 
 # Timer callback will be injected from main.py
 _speak_callback = None
@@ -66,13 +66,13 @@ def _parse_add_task(query):
 
     # Clean up task name
     task = re.sub(r".*add task\s*", "", query).strip()
-    task = re.sub(r"\s+", " ", task).strip()
+    task = re.sub(r"\s+", " ", task).strip(".,!? ")
 
     return task, priority, category, deadline
 
 def process_query(query):
-    query = query.strip()
-    q = query.lower()
+    query = query.strip().strip(".,!?")
+    q = query.lower().strip(".,!?")
 
     # ── Flashcards (must be checked early to avoid keyword conflicts) ──
     if "create flashcard" in q:
@@ -83,7 +83,7 @@ def process_query(query):
             return add_flashcard(question, answer)
         return "Format: create flashcard <question> | <answer>"
 
-    if "show flashcard" in q or "list flashcard" in q:
+    if "show flashcard" in q or "list flashcard" in q or q.strip() in ["cards", "flashcards", "show cards"]:
         return show_flashcards()
 
     if "delete flashcard" in q:
@@ -99,8 +99,21 @@ def process_query(query):
     if is_quiz_active():
         return check_answer(query)
 
-    if q in ["hello", "hi", "hey"] or q.strip() in ["hello!", "hi!", "hey!"]:
+    # Greeting — check for name introduction first
+    if "i'm" in q or "i am" in q or "my name is" in q:
+        name_match = re.search(r"(?:i'm|i am|my name is)\s+(\w+)", q)
+        if name_match and name_match.group(1) not in ["a", "the", "an", "your", "aria"]:
+            return f"Nice to meet you, {name_match.group(1).capitalize()}! I am Aria. How can I help you today?"
+
+    words = q.split()
+    if len(words) <= 5 and any(w in words for w in ["hello", "hi", "hey"]):
         return "Hello! I am Aria, your academic assistant. How can I help you today?"
+
+    if any(g in q for g in ["good morning", "good afternoon", "good evening", "good night"]):
+        return "Good day! I am Aria, your academic assistant. How can I help you today?"
+
+    if "thank" in q or "thanks" in q:
+        return "You're welcome! Happy to help. Is there anything else you need?"
 
     if "add task" in q:
         task, priority, category, deadline = _parse_add_task(q)
@@ -196,12 +209,15 @@ def process_query(query):
         username = q.replace("register", "").strip()
         return register_user(username)
 
-    if "create group" in q:
-        m = re.search(r"create group\s+(\w+)", q)
-        user_m = re.search(r"as\s+(\w+)", q)
-        if m:
+    if "create group" in q or "make group" in q or "new group" in q or "make a group" in q or "create a group" in q:
+        # Skip filler words like "of", "a", "the", "my"
+        m = re.search(r"(?:create|make|new)\s+(?:a\s+)?group\s+(?:of\s+\w+\s+)?(?:named?|called)?\s*(\w+)", q)
+        if not m:
+            m = re.search(r"(?:create|make|new)\s+(?:a\s+)?group\s+(\w+)(?!\s+(?:of|a|the|my))", q)
+        user_m = re.search(r"\bas\s+(\w+)", q)
+        if m and m.group(1) not in ["of", "a", "the", "my", "group", "named", "called", "two", "three", "four"]:
             return create_group(m.group(1), user_m.group(1) if user_m else "anonymous")
-        return "Format: create group <name> as <username>"
+        return "Please give your group a name. Example: create group mathteam as mitali"
 
     if "join group" in q:
         m = re.search(r"join group\s+(\w+)", q)
@@ -239,10 +255,28 @@ def process_query(query):
     if "list groups" in q or "show groups" in q:
         return list_groups()
 
+    if "group members" in q or "show members" in q or "members of" in q or "members in" in q:
+        m = re.search(r"(?:members of|members in|group members|show members)\s+(?:group\s+)?(\w+)", q)
+        if m:
+            return show_members(m.group(1))
+        return "Format: group members <group name>"
+
+    if "add member" in q:
+        m = re.search(r"add member\s+(\w+)\s+(?:to\s+)?(\w+)", q)
+        if m:
+            return add_member(m.group(2), m.group(1))
+        return "Format: add member <username> to <group name>"
+
+    if "group activity" in q or "activity of" in q or "group log" in q:
+        m = re.search(r"(?:group activity|activity of|group log)\s+(\w+)", q)
+        if m:
+            return get_group_activity(m.group(1))
+        return "Format: group activity <group name>"
+
     if "help" in q or "what can you do" in q or "commands" in q:
         return HELP_TEXT
 
     if "your name" in q or "who are you" in q:
         return "I am AI assistant , your AI-based academic assistant built to help you manage tasks and track productivity."
 
-    return "Sorry, I didn't understand that. Say 'help' to see available commands."
+    return "I didn't quite catch that. Try saying 'help' to see all commands, or rephrase your request."

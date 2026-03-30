@@ -1,4 +1,4 @@
-import sys
+﻿import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -11,7 +11,6 @@ from utils.config import ASSISTANT_NAME
 
 app = Flask(__name__)
 
-# No TTS in web mode — just return text
 set_speak_callback(lambda text: None)
 init_db()
 
@@ -24,17 +23,12 @@ def chat():
     user_msg = request.json.get("message", "").strip()
     if not user_msg:
         return jsonify({"response": "Please type something."})
-
     response = process_query(user_msg)
-
     if response == "PROMPT_TASK":
-        response = "What task would you like to add? Type: add task <name> [high/medium/low] [category <name>] [deadline YYYY-MM-DD]"
-
-    # Check if response is an image
+        response = "Sure! What task would you like to add? You can say something like: 'add task complete ML assignment high category ai 2026-04-01'"
     if response and response.startswith("IMAGE:"):
         img_b64 = response[6:]
         return jsonify({"type": "image", "image": img_b64})
-
     return jsonify({"type": "text", "response": response})
 
 @app.route("/status")
@@ -50,11 +44,4 @@ def status():
     })
 
 if __name__ == "__main__":
-    try:
-        from pyngrok import ngrok
-        public_url = ngrok.connect(5000)
-        print(f"\n🌐 Public URL: {public_url}")
-        print("Share this URL with anyone on any device!\n")
-    except Exception:
-        print("pyngrok not installed — running locally only")
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    app.run(debug=True, port=5000)

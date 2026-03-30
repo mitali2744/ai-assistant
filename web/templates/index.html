@@ -1,62 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Aria - AI Academic Assistant</title>
-  <link rel="stylesheet" href="/static/style.css" />
+  <link rel="stylesheet" href="/static/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 </head>
 <body>
   <div class="app">
+
+    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="logo">
-        <div class="logo-icon">A</div>
-        <div><h1>Aria</h1><p>AI Academic Assistant</p></div>
-      </div>
-      <div class="status-card">
-        <h3>Your Stats</h3>
-        <div class="stat"><span>Pending</span><span id="stat-pending" class="badge orange">-</span></div>
-        <div class="stat"><span>Completed</span><span id="stat-completed" class="badge green">-</span></div>
-        <div class="stat" id="due-today-section" style="display:none">
-          <span>Due Today</span><span id="stat-due" class="badge red">-</span>
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" fill="white" opacity="0.2"/>
+            <path d="M12 6v6l4 2" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="12" cy="12" r="3" fill="white"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Aria</h1>
+          <p>AI Academic Assistant</p>
         </div>
       </div>
+
+      <div class="stats-grid">
+        <div class="stat-box orange">
+          <span class="stat-num" id="stat-pending">-</span>
+          <span class="stat-label">Pending</span>
+        </div>
+        <div class="stat-box green">
+          <span class="stat-num" id="stat-completed">-</span>
+          <span class="stat-label">Completed</span>
+        </div>
+        <div class="stat-box red" id="due-box" style="display:none">
+          <span class="stat-num" id="stat-due">-</span>
+          <span class="stat-label">Due Today</span>
+        </div>
+      </div>
+
       <div class="xp-card">
-        <h3>Progress</h3>
+        <div class="xp-header">
+          <span>Progress</span>
+          <span id="xp-level">Freshman</span>
+        </div>
+        <div class="xp-bar-bg">
+          <div class="xp-bar-fill" id="xp-bar" style="width:0%"></div>
+        </div>
         <p id="xp-status">Loading...</p>
       </div>
+
       <div class="commands-card">
-        <h3>Quick Commands</h3>
-        <button class="cmd-btn" onclick="sendQuick('show tasks')">Show Tasks</button>
-        <button class="cmd-btn" onclick="sendQuick('productivity')">Productivity</button>
-        <button class="cmd-btn" onclick="sendQuick('deadlines')">Deadlines</button>
-        <button class="cmd-btn" onclick="sendQuick('schedule')">Schedule</button>
-        <button class="cmd-btn" onclick="sendQuick('quote')">Quote</button>
-        <button class="cmd-btn" onclick="sendQuick('recommend')">Recommend</button>
-        <button class="cmd-btn" onclick="sendQuick('quiz me')">Quiz Me</button>
-        <button class="cmd-btn" onclick="sendQuick('show flashcards')">Flashcards</button>
-        <button class="cmd-btn" onclick="sendQuick('list groups')">Study Groups</button>
-        <button class="cmd-btn" onclick="sendQuick('help')">Help</button>
+        <p class="section-title">Quick Actions</p>
+        <div class="cmd-grid">
+          <button class="cmd-btn" onclick="sendQuick('show tasks')">📋 Tasks</button>
+          <button class="cmd-btn" onclick="sendQuick('productivity')">📊 Stats</button>
+          <button class="cmd-btn" onclick="sendQuick('show graph')">📈 Graph</button>
+          <button class="cmd-btn" onclick="sendQuick('deadlines')">⏰ Deadlines</button>
+          <button class="cmd-btn" onclick="sendQuick('schedule')">📅 Schedule</button>
+          <button class="cmd-btn" onclick="sendQuick('recommend')">🎯 Advice</button>
+          <button class="cmd-btn" onclick="sendQuick('quiz me')">🧠 Quiz</button>
+          <button class="cmd-btn" onclick="sendQuick('show flashcards')">🗂️ Cards</button>
+          <button class="cmd-btn" onclick="sendQuick('list groups')">👥 Groups</button>
+          <button class="cmd-btn" onclick="sendQuick('quote')">💬 Quote</button>
+          <button class="cmd-btn" onclick="sendQuick('dataset insights')">🔬 Dataset</button>
+          <button class="cmd-btn" onclick="sendQuick('help')">❓ Help</button>
+        </div>
       </div>
     </aside>
+
+    <!-- Main chat -->
     <main class="chat-area">
       <div class="chat-header">
-        <div class="avatar">A</div>
-        <div><h2>Aria</h2><span class="online">Online</span></div>
+        <div class="header-left">
+          <div class="avatar-pulse">
+            <div class="avatar">A</div>
+            <div class="pulse-ring"></div>
+          </div>
+          <div>
+            <h2>Aria</h2>
+            <span class="status-dot">● Online</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <span class="voice-badge" id="voice-status">🎤 Voice Ready</span>
+        </div>
       </div>
+
       <div class="messages" id="messages">
         <div class="message aria">
+          <div class="avatar-sm">A</div>
           <div class="bubble">
-            Hello! I am <strong>Aria</strong>, your AI academic assistant.<br/>
-            Type a message or use the quick commands on the left to get started.
+            <p>Hello! I am <strong>Aria</strong>, your AI academic assistant.</p>
+            <p>You can <strong>type</strong> or use the <strong>🎤 microphone</strong> to talk to me.</p>
+            <p>Try: <em>"add task study machine learning high"</em> or click a quick action.</p>
           </div>
         </div>
       </div>
+
       <div class="input-area">
-        <input type="text" id="user-input" placeholder="Type a message... e.g. add task study ML" autocomplete="off"/>
-        <button id="send-btn" onclick="sendMessage()">Send</button>
+        <div class="input-wrapper">
+          <input type="text" id="user-input" placeholder="Type a message or click 🎤 to speak..." autocomplete="off"/>
+          <button class="mic-btn" id="mic-btn" onclick="toggleVoice()" title="Click to speak">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <rect x="9" y="2" width="6" height="12" rx="3" fill="currentColor"/>
+              <path d="M5 10a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <line x1="12" y1="19" x2="12" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <line x1="8" y1="22" x2="16" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <button class="send-btn" onclick="sendMessage()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+        </button>
       </div>
     </main>
+
   </div>
   <script src="/static/script.js"></script>
 </body>

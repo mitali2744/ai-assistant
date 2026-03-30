@@ -46,6 +46,7 @@ def join_group(group_name, username):
     try:
         conn.execute("INSERT INTO group_members (group_id, username) VALUES (?, ?)", (group[0], username.lower()))
         conn.commit()
+        _log_activity(conn, group[0], username.lower(), "joined the group")
         conn.close()
         return f"You joined group '{group_name}'!"
     except Exception:
@@ -62,6 +63,8 @@ def add_group_task(group_name, task, created_by, assigned_to=None, priority="med
         return f"Group '{group_name}' not found."
     conn.execute("INSERT INTO group_tasks (group_id,task,created_by,assigned_to,priority) VALUES (?,?,?,?,?)", (group[0], task.strip(), created_by.lower(), assigned_to, priority))
     conn.commit()
+    action = f"added task '{task}'" + (f" assigned to {assigned_to}" if assigned_to else "")
+    _log_activity(conn, group[0], created_by.lower(), action)
     conn.close()
     return f"Task '{task}' added to group '{group_name}'" + (f", assigned to {assigned_to}." if assigned_to else ".")
 
@@ -118,3 +121,54 @@ def list_groups():
     if not rows:
         return "No study groups yet. Create one with: create group <name>"
     return "Study groups: " + ", ".join([r[0] for r in rows])
+
+def add_member(group_name, username):
+    return join_group(group_name, username)
+
+def show_members(group_name):
+    group_name = group_name.strip().lower()
+    conn = get_connection()
+    _init(conn)
+    group = conn.execute("SELECT id FROM study_groups WHERE name=?", (group_name,)).fetchone()
+    if not group:
+        conn.close()
+        return f"Group '{group_name}' not found."
+    members = conn.execute(
+        "SELECT username FROM group_members WHERE group_id=?", (group[0],)
+    ).fetchall()
+    conn.close()
+    if not members:
+        return f"No members in group '{group_name}'."
+    names = [m[0] for m in members]
+    return f"Group '{group_name}' has {len(names)} member(s): {', '.join(names)}"
+
+def _log_activity(conn, group_id, username, action):
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS group_activity (id INTEGER PRIMARY KEY AUTOINCREMENT, group_id INTEGER, username TEXT, action TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"
+    )
+    conn.execute(
+        "INSERT INTO group_activity (group_id, username, action) VALUES (?,?,?)",
+        (group_id, username, action)
+    )
+    conn.commit()
+
+def get_group_activity(group_name, limit=10):
+    group_name = group_name.strip().lower()
+    conn = get_connection()
+    _init(conn)
+    conn.execute("CREATE TABLE IF NOT EXISTS group_activity (id INTEGER PRIMARY KEY AUTOINCREMENT, group_id INTEGER, username TEXT, action TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+    group = conn.execute("SELECT id FROM study_groups WHERE name=?", (group_name,)).fetchone()
+    if not group:
+        conn.close()
+        return f"Group '{group_name}' not found."
+    rows = conn.execute(
+        "SELECT username, action, created_at FROM group_activity WHERE group_id=? ORDER BY created_at DESC LIMIT ?",
+        (group[0], limit)
+    ).fetchall()
+    conn.close()
+    if not rows:
+        return f"No activity recorded for group '{group_name}' yet."
+    lines = [f"Recent activity in '{group_name}':"]
+    for r in rows:
+        lines.append(f"  [{r[2][:16]}] {r[0]}: {r[1]}")
+    return "\n".join(lines)
