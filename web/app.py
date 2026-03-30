@@ -50,6 +50,11 @@ def status():
     })
 
 if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 5000))
-    app.run(debug=False, host="0.0.0.0", port=port)
+    try:
+        from pyngrok import ngrok
+        public_url = ngrok.connect(5000)
+        print(f"\n🌐 Public URL: {public_url}")
+        print("Share this URL with anyone on any device!\n")
+    except Exception:
+        print("pyngrok not installed — running locally only")
+    app.run(debug=True, host="0.0.0.0", port=5000)
