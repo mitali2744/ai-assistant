@@ -3,7 +3,7 @@ from core.command_handler import add_task, show_tasks, complete_task, delete_tas
 from core.productivity import analyze_productivity, show_productivity_graph
 from core.quotes import get_random_quote
 from core.scheduler import check_deadlines, generate_study_schedule, predict_completion
-from core.dataset_analysis import get_study_recommendation, predict_grade, cluster_student_profile, show_dataset_insights, get_exam_insights, get_dataset_summary, predict_pass_fail
+from core.dataset_analysis import get_study_recommendation, predict_grade, cluster_student_profile, show_dataset_insights, get_exam_insights, get_dataset_summary, predict_pass_fail, predict_performance_rf
 from core.flashcards import add_flashcard, show_flashcards, start_quiz, check_answer, is_quiz_active, delete_flashcard
 from core.groups import register_user, create_group, join_group, add_group_task, show_group_tasks, complete_group_task, group_productivity, list_groups, add_member, show_members, get_group_activity
 
@@ -234,6 +234,15 @@ def process_query(query, user_id=1):
         goout     = int(nums[3]) if len(nums) > 3 else 3
         health    = int(nums[4]) if len(nums) > 4 else 3
         return predict_pass_fail(studytime, failures, absences, goout, health)
+
+    if "random forest" in q or "rf predict" in q or "performance predict" in q:
+        nums = re.findall(r"\d+", q)
+        studytime = int(nums[0]) if len(nums) > 0 else 2
+        failures  = int(nums[1]) if len(nums) > 1 else 0
+        absences  = int(nums[2]) if len(nums) > 2 else 5
+        goout     = int(nums[3]) if len(nums) > 3 else 3
+        health    = int(nums[4]) if len(nums) > 4 else 3
+        return predict_performance_rf(studytime, failures, absences, goout, health)
 
     if "dataset" in q or "insights" in q or "dataset graph" in q:
         return show_dataset_insights()
