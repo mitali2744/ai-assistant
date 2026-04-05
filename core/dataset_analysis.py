@@ -13,7 +13,6 @@ from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-from sklearn.ensemble import RandomForestClassifier
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -270,45 +269,4 @@ def predict_pass_fail(studytime, failures, absences, goout=3, health=3):
         f"SVM Pass/Fail Prediction (RBF kernel, {len(df)} records, accuracy: {acc*100:.1f}%): "
         f"{result}. {tip} "
         f"[studytime={studytime}, failures={failures}, absences={absences}]"
-    )
-
-
-def predict_performance_rf(studytime, failures, absences, goout=3, health=3):
-    """Random Forest classification — predicts performance level (High/Average/At-Risk)."""
-    df = _load_uci().copy()
-    features = ["studytime", "failures", "absences", "goout", "health"]
-    df = df[features + ["G3"]].apply(pd.to_numeric, errors="coerce").dropna()
-
-    def label(g):
-        if g >= 15: return 2
-        elif g >= 10: return 1
-        else: return 0
-
-    X = df[features].values
-    y = df["G3"].apply(label).values
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
-    acc = accuracy_score(y_test, model.predict(X_test))
-
-    pred = model.predict([[studytime, failures, absences, goout, health]])[0]
-    proba = model.predict_proba([[studytime, failures, absences, goout, health]])[0]
-
-    labels = {0: "At-Risk ⚠️", 1: "Average 📘", 2: "High Achiever 🌟"}
-    tips = {
-        0: "Focus on reducing absences and increasing daily study time.",
-        1: "You're on track. Push a bit harder to reach the top tier.",
-        2: "Excellent performance predicted. Keep up the great work!"
-    }
-
-    importance = dict(zip(features, model.feature_importances_))
-    top_feature = max(importance, key=importance.get)
-    confidence = f"{proba[pred]*100:.1f}%"
-
-    return (
-        f"Random Forest Prediction (100 trees, {len(df)} records, accuracy: {acc*100:.1f}%): "
-        f"{labels[pred]} — confidence: {confidence}. {tips[pred]} "
-        f"Top factor: {top_feature}."
     )
