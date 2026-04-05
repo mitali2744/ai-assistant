@@ -2,7 +2,7 @@ import json
 import os
 from datetime import datetime, date
 
-XP_FILE = "xp_data.json"
+XP_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "xp_data.json")
 
 LEVELS = [
     (0,    "Freshman"),

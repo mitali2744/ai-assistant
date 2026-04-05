@@ -64,6 +64,8 @@
       document.getElementById("submit-btn").textContent = m === "login" ? "Login" : "Create Account";
       document.querySelectorAll(".tab").forEach((t,i) => t.classList.toggle("active", (i===0 && m==="login") || (i===1 && m==="register")));
     }
+    // Auto-set mode from URL hash e.g. /login#register
+    if (window.location.hash === "#register") setMode("register");
   </script>
 </body>
 </html>
