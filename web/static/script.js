@@ -6,6 +6,7 @@ const voiceStatus = document.getElementById("voice-status");
 let isListening = false;
 let recognition = null;
 
+// ── Speech Recognition ──────────────────────────────────────────────────────
 if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   recognition = new SR();
@@ -18,7 +19,7 @@ if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
     micBtn.classList.add("active");
     voiceStatus.textContent = "🔴 Listening...";
     voiceStatus.classList.add("listening");
-    inputEl.placeholder = "Listening... seak now";
+    inputEl.placeholder = "Listening... speak now";
   };
 
   recognition.onresult = (e) => {
@@ -36,40 +37,42 @@ if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
   recognition.onerror = () => stopListening();
   recognition.onend   = () => stopListening();
 } else {
-  micBtn.title = "Voice not supported. Use Chrome.";
-  micBtn.style.opacity = "0.3";
+  if (micBtn) {
+    micBtn.title = "Voice not supported. Use Chrome.";
+    micBtn.style.opacity = "0.3";
+  }
 }
 
 function toggleVoice() {
   if (!recognition) { addMessage("Voice not supported. Please use Chrome.", "aria"); return; }
-  isListening ? recognitart();
+  if (isListening) {
+    recognition.stop();
+  } else {
+    recognition.start();
+  }
 }
 
 function stopListening() {
   isListening = false;
-  micBtn.classList.remove("active");
-  voiceStatus.textContent = "🎤 Voice Ready";
-  voiceStatus.classList.remove("listening");
+  if (micBtn) micBtn.classList.remove("active");
+  if (voiceStatus) {
+    voiceStatus.textContent = "🎤 Voice Ready";
+    voiceStatus.classList.remove("listening");
+  }
   inputEl.placeholder = "Type a message or click 🎤 to speak...";
 }
 
+// ── Text to Speech ──────────────────────────────────────────────────────────
 function ariaSpeak(text) {
   if (!window.speechSynthesis || !text || text.length > 300) return;
   window.speechSynthesis.cancel();
-    if (data.type === "image") {
-      const div = document.createElement("div"); div.className = "message aria";
-      const av = document.createElement("div"); av.className = "avatar-sm"; av.textContent = "A";
-      const bubble = document.createElement("div"); bubble.className = "bubble";
-      const img = document.createElement("img"); img.src = "data:image/png;base64," + data.image; img.style.cssText = "max-width:100%;border-radius:10px;margin-top:6px;";
-      bubble.appendChild(img); div.appendChild(av); div.appendChild(bubble); messagesEl.appendChild(div); scrollBottom();
-    } else if (data.type === "table") {
-      const div = document.createElement("div"); div.className = "message aria";
-      const av = document.createElement("div"); av.className = "avatar-sm"; av.textContent = "A";
-      const bubble = document.createElement("div"); bubble.className = "bubble";
-      bubble.innerHTML = data.html;
-      div.appendChild(av); div.appendChild(bubble); messagesEl.appendChild(div); scrollBottom();
-    } else { addMessage(data.response, "aria"); ariaSpeak(data.response); }
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = 1;
+  utter.pitch = 1;
+  window.speechSynthesis.speak(utter);
+}
 
+// ── Message Helpers ─────────────────────────────────────────────────────────
 function scrollBottom() { messagesEl.scrollTop = messagesEl.scrollHeight; }
 
 function addMessage(text, sender) {
@@ -94,15 +97,19 @@ function addTyping() {
   const div = document.createElement("div");
   div.className = "message aria typing";
   const av = document.createElement("div");
-  av.className = "avatar-sm"; av.textContent = "A";
-  const bubble = do"div");
-  bubble.className = "bubble"; bubble.textContent = "Aria is thinking...";
-  div.appendChild(av); div.appendChild(bubble);
+  av.className = "avatar-sm";
+  av.textContent = "A";
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.textContent = "Aria is thinking...";
+  div.appendChild(av);
+  div.appendChild(bubble);
   messagesEl.appendChild(div);
   scrollBottom();
   return div;
 }
 
+// ── Send Message ─────────────────────────────────────────────────────────────
 async function sendMessage() {
   const msg = inputEl.value.trim();
   if (!msg) return;
@@ -119,18 +126,25 @@ async function sendMessage() {
     const data = await res.json();
     typing.remove();
 
- = "image") {
-      const div = document.createElement("div");
-      div.className = "message aria";
-      const av = document.createElement("div");
-      av.className = "avatar-sm"; av.textContent = "A";
-      const bubble = document.createElement("div");
-      bubble.className = "bubble";
-      const img = document.createElement("img");
+    if (data.type === "image") {
+      const div    = document.createElement("div"); div.className = "message aria";
+      const av     = document.createElement("div"); av.className = "avatar-sm"; av.textContent = "A";
+      const bubble = document.createElement("div"); bubble.className = "bubble";
+      const img    = document.createElement("img");
       img.src = "data:image/png;base64," + data.image;
       img.style.cssText = "max-width:100%;border-radius:10px;margin-top:6px;";
       bubble.appendChild(img);
-      div.appendChild(av); div.appendChild(bubble);
+      div.appendChild(av);
+      div.appendChild(bubble);
+      messagesEl.appendChild(div);
+      scrollBottom();
+    } else if (data.type === "table") {
+      const div    = document.createElement("div"); div.className = "message aria";
+      const av     = document.createElement("div"); av.className = "avatar-sm"; av.textContent = "A";
+      const bubble = document.createElement("div"); bubble.className = "bubble";
+      bubble.innerHTML = data.html;
+      div.appendChild(av);
+      div.appendChild(bubble);
       messagesEl.appendChild(div);
       scrollBottom();
     } else {
@@ -146,29 +160,36 @@ async function sendMessage() {
 
 function sendQuick(cmd) { inputEl.value = cmd; sendMessage(); }
 
+// ── Status Bar ───────────────────────────────────────────────────────────────
 async function loadStatus() {
   try {
     const res  = await fetch("/status");
     const data = await res.json();
     document.getElementById("stat-pending").textContent   = data.pending;
     document.getElementById("stat-completed").textContent = data.completed;
-    document.getElementById("xp-st      = data.xp_status;
 
-    const xpMatch = data.xp_status.match(/(\d+)\s*XP\s*\/\s*(\d+)/);
-    if (xpMatch) {
-      const pct = Math.min((parseInt(xpMatch[1]) / parseInt(xpMatch[2])) * 100, 100);
-      document.getElementById("xp-bar").style.width = pct + "%";
+    if (data.xp_status) {
+      document.getElementById("xp-status").textContent = data.xp_status;
+
+      const xpMatch = data.xp_status.match(/(\d+)\s*XP\s*\/\s*(\d+)/);
+      if (xpMatch) {
+        const pct = Math.min((parseInt(xpMatch[1]) / parseInt(xpMatch[2])) * 100, 100);
+        document.getElementById("xp-bar").style.width = pct + "%";
+      }
+      const lvlMatch = data.xp_status.match(/Level:\s*([^|]+)/);
+      if (lvlMatch) document.getElementById("xp-level").textContent = lvlMatch[1].trim();
     }
-    const lvlMatch = data.xp_status.match(/Level:\s*([^|]+)/);
-    if (lvlMatch) document.getElementById("xp-level").textContent = lvlMatch[1].trim();
 
-    if (data.due_today.length > 0) {
-      document.getEl "flex";
+    if (data.due_today && data.due_today.length > 0) {
+      document.getElementById("due-box").style.display = "flex";
       document.getElementById("stat-due").textContent = data.due_today.length;
     }
   } catch {}
 }
 
+// ── Event Listeners ──────────────────────────────────────────────────────────
 inputEl.addEventListener("keydown", e => { if (e.key === "Enter") sendMessage(); });
-window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+if (window.speechSynthesis) {
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
 loadStatus();
