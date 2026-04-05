@@ -38,6 +38,7 @@ def login():
             conn = get_connection()
             existing = conn.execute("SELECT id FROM users WHERE username=?", (username,)).fetchone()
             if existing:
+                conn.close()
                 message = "Username already taken. Try another."
                 error = True
             else:
@@ -47,8 +48,6 @@ def login():
                 conn.close()
                 message = f"Account created! Welcome, {username}. Please login."
                 mode = "login"
-            if not error:
-                conn.close() if not error else None
         else:
             conn = get_connection()
             user = conn.execute("SELECT id, password_hash FROM users WHERE username=?", (username,)).fetchone()

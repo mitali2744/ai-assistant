@@ -9,8 +9,6 @@
 </head>
 <body>
   <div class="app">
-
-    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="logo">
         <div class="logo-icon">
@@ -25,7 +23,6 @@
           <p>AI Academic Assistant</p>
         </div>
       </div>
-
       <div class="stats-grid">
         <div class="stat-box orange">
           <span class="stat-num" id="stat-pending">-</span>
@@ -40,7 +37,6 @@
           <span class="stat-label">Due Today</span>
         </div>
       </div>
-
       <div class="xp-card">
         <div class="xp-header">
           <span>Progress</span>
@@ -51,7 +47,6 @@
         </div>
         <p id="xp-status">Loading...</p>
       </div>
-
       <div class="commands-card">
         <p class="section-title">Quick Actions</p>
         <div class="cmd-grid">
@@ -62,7 +57,7 @@
           <button class="cmd-btn" onclick="sendQuick('schedule')">📅 Schedule</button>
           <button class="cmd-btn" onclick="sendQuick('recommend')">🎯 Advice</button>
           <button class="cmd-btn" onclick="sendQuick('quiz me')">🧠 Quiz</button>
-          <button class="cmd-btn" onclick="sendQuick('show flashcards')">🗂️ Cards</button>
+          <button class="cmd-btn" onclick="sendQuick('show flashcards')">🗂 Cards</button>
           <button class="cmd-btn" onclick="sendQuick('list groups')">👥 Groups</button>
           <button class="cmd-btn" onclick="sendQuick('quote')">💬 Quote</button>
           <button class="cmd-btn" onclick="sendQuick('dataset insights')">🔬 Dataset</button>
@@ -70,8 +65,6 @@
         </div>
       </div>
     </aside>
-
-    <!-- Main chat -->
     <main class="chat-area">
       <div class="chat-header">
         <div class="header-left">
@@ -88,18 +81,18 @@
           <span class="voice-badge" id="voice-status">🎤 Voice Ready</span>
         </div>
       </div>
-
       <div class="messages" id="messages">
         <div class="message aria">
           <div class="avatar-sm">A</div>
-          <div class="bubble">
-            <p>Hello! I am <strong>Aria</strong>, your AI academic assistant.</p>
-            <p>You can <strong>type</strong> or use the <strong>🎤 microphone</strong> to talk to me.</p>
+        <div class="header-right">
+          <span class="voice-badge" id="voice-status">🎤 Voice Ready</span>
+          <span class="user-badge">👤 {{ username }}</span>
+          <a href="/logout" class="logout-btn">Logout</a>
+        </div>>You can <strong>type</strong> or use the <strong>🎤 microphone</strong> to talk to me.</p>
             <p>Try: <em>"add task study machine learning high"</em> or click a quick action.</p>
           </div>
         </div>
       </div>
-
       <div class="input-area">
         <div class="input-wrapper">
           <input type="text" id="user-input" placeholder="Type a message or click 🎤 to speak..." autocomplete="off"/>
@@ -120,7 +113,6 @@
         </button>
       </div>
     </main>
-
   </div>
   <script src="/static/script.js"></script>
 </body>
