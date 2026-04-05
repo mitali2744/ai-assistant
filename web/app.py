@@ -29,6 +29,8 @@ def chat():
     if response and response.startswith("IMAGE:"):
         img_b64 = response[6:]
         return jsonify({"type": "image", "image": img_b64})
+    if response and response.startswith("TABLE:"):
+        return jsonify({"type": "table", "html": response[6:]})
     return jsonify({"type": "text", "response": response})
 
 @app.route("/status")

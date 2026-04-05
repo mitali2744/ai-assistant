@@ -32,11 +32,12 @@ def show_flashcards():
     conn.close()
     if not rows:
         return "No flashcards yet. Create one with: create flashcard <question> | <answer>"
-    lines = []
+    lines = ["Your Flashcards", "-" * 40]
     for r in rows:
-        acc = f"{r[3]}/{r[4]}" if r[4] > 0 else "untested"
-        lines.append(f"{r[0]}. Q: {r[1]}\n   A: {r[2]}  [{acc}]")
-    return "Your Flashcards:\n" + "\n".join(lines)
+        acc = str(r[3]) + "/" + str(r[4]) if r[4] > 0 else "untested"
+        lines.append(str(r[0]) + ". Q: " + r[1])
+        lines.append("   A: " + r[2] + "  [" + acc + "]")
+    return "\n".join(lines)
 
 def delete_flashcard(card_id):
     conn = get_connection()

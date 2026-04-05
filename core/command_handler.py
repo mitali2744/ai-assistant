@@ -41,15 +41,17 @@ def show_tasks(category=None, priority=None):
     conn.close()
     if not tasks:
         return "You have no tasks right now."
-    lines = []
+    lines = ["📋 Your Tasks\n" + "─" * 40]
     for t in tasks:
-        line = f"{t[0]}. [{t[3].upper()}] {t[1]} ({t[2]})"
+        status_icon = "✅" if t[2] == "completed" else "⏳"
+        pri_icon = "🔴" if t[3] == "high" else "🟡" if t[3] == "medium" else "🟢"
+        line = f"{status_icon} {pri_icon} [{t[0]}] {t[1]}"
         if t[4] != "general":
-            line += f" | {t[4]}"
+            line += f"  |  {t[4]}"
         if t[5]:
-            line += f" | due: {t[5]}"
+            line += f"  |  due: {t[5]}"
         lines.append(line)
-    return "Your tasks:\n" + "\n".join(lines)
+    return "\n".join(lines)
 
 def complete_task(task_id):
     conn = get_connection()

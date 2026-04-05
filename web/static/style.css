@@ -327,3 +327,35 @@ body {
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.3); border-radius: 2px; }
+
+/* ── Tables ── */
+.tbl-wrap { overflow-x: auto; }
+
+.resp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.resp-table th {
+  background: rgba(124,58,237,0.25);
+  color: #e0e0f0;
+  padding: 8px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(124,58,237,0.3);
+}
+
+.resp-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  color: #d0d0e8;
+  vertical-align: middle;
+}
+
+.resp-table tr:last-child td { border-bottom: none; }
+.resp-table tr:hover td { background: rgba(124,58,237,0.08); }

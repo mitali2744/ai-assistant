@@ -14,27 +14,57 @@ def set_speak_callback(fn):
     global _speak_callback
     _speak_callback = fn
 
-HELP_TEXT = """Commands you can use:
-  add task <name> [priority high/medium/low] [category <name>] [deadline YYYY-MM-DD]
-  show tasks | show high tasks | show tasks category <name>
-  complete task <number> | delete task <number>
-  productivity | show graph | deadlines | schedule | predict
-  timer <mins> | pomodoro | quote | recommend
-  grade predict | my profile | dataset insights
-  --- Flashcards ---
+HELP_TEXT = """Available Commands:
+
+TASKS
+  add task <name> [high/medium/low] [category <name>] [deadline YYYY-MM-DD]
+  show tasks
+  show high tasks / show tasks category <name>
+  complete task <number>
+  delete task <number>
+
+PRODUCTIVITY
+  productivity       - check your score and level
+  show graph         - visualize task dashboard
+  deadlines          - see overdue and upcoming tasks
+  schedule           - get a day-by-day study plan
+  predict            - estimate time to finish pending tasks
+
+ML & DATASET
+  recommend          - study advice from 5500 student records
+  grade predict      - predict your grade using Linear Regression
+  my profile         - classify your student type using K-Means
+  exam insights      - analyze exam performance dataset
+  dataset insights   - full dataset visualization graph
+  dataset summary    - show dataset size and sources
+
+FLASHCARDS
   create flashcard <question> | <answer>
-  show flashcards | delete flashcard <number>
-  quiz me  (then type your answer)
-  --- Study Groups ---
+  show flashcards
+  quiz me            - start a random quiz
+  delete flashcard <number>
+
+STUDY GROUPS
   register <username>
-  create group <name>
+  create group <name> as <username>
   join group <name> as <username>
   add group task <group> : <task> [assign <username>]
   show group tasks <name>
   complete group task <number>
   group productivity <name>
+  group members <name>
+  group activity <name>
   list groups
-  stop — exit"""
+
+TIMER
+  timer <minutes>    - start a countdown timer
+  pomodoro           - 25 min focus + 5 min break
+
+OTHER
+  quote              - get a motivational quote
+  recommend          - personalized study advice
+  help               - show this list
+  stop               - exit"""
 
 def _extract_number(query):
     numbers = re.findall(r"\d+", query)
@@ -179,7 +209,7 @@ def process_query(query):
         hours = num if num else None
         return get_study_recommendation(studytime_hours_per_week=hours)
 
-    if "grade predict" in q or "predict grade" in q or "predict my grade" in q:
+    if "grade predict" in q or "predict grade" in q or "predict my grade" in q or q.strip() in ["grades", "grade", "predict grade"]:
         # Extract numbers: studytime failures absences
         nums = re.findall(r"\d+", q)
         studytime = int(nums[0]) if len(nums) > 0 else 2
