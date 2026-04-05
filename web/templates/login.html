@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aria - Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',sans-serif; background:#080818; color:#e0e0f0; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+    .card { background:rgba(15,15,42,0.9); border:1px solid rgba(124,58,237,0.25); border-radius:20px; padding:40px; width:100%; max-width:420px; backdrop-filter:blur(20px); }
+    .logo { text-align:center; margin-bottom:32px; }
+    .logo-icon { width:60px; height:60px; background:linear-gradient(135deg,#7c3aed,#4f46e5); border-radius:18px; display:inline-flex; align-items:center; justify-content:center; font-size:28px; font-weight:800; color:white; box-shadow:0 0 30px rgba(124,58,237,0.4); margin-bottom:12px; }
+    .logo h1 { font-size:24px; font-weight:700; color:#fff; }
+    .logo p { font-size:13px; color:#6b6b9a; margin-top:4px; }
+    .tabs { display:flex; background:rgba(255,255,255,0.05); border-radius:10px; padding:4px; margin-bottom:24px; }
+    .tab { flex:1; padding:8px; text-align:center; border-radius:8px; cursor:pointer; font-size:14px; font-weight:500; color:#888; transition:all 0.2s; border:none; background:none; font-family:'Inter',sans-serif; }
+    .tab.active { background:linear-gradient(135deg,#7c3aed,#4f46e5); color:#fff; }
+    .form-group { margin-bottom:16px; }
+    label { display:block; font-size:12px; color:#888; margin-bottom:6px; font-weight:500; }
+    input { width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:12px 14px; color:#e0e0f0; font-size:14px; font-family:'Inter',sans-serif; outline:none; transition:border-color 0.2s; }
+    input:focus { border-color:rgba(124,58,237,0.5); box-shadow:0 0 0 3px rgba(124,58,237,0.1); }
+    .btn { width:100%; background:linear-gradient(135deg,#7c3aed,#4f46e5); border:none; color:white; padding:13px; border-radius:10px; font-size:15px; font-weight:600; font-family:'Inter',sans-serif; cursor:pointer; margin-top:8px; transition:all 0.2s; box-shadow:0 4px 15px rgba(124,58,237,0.3); }
+    .btn:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(124,58,237,0.4); }
+    .msg { padding:10px 14px; border-radius:8px; font-size:13px; margin-bottom:16px; }
+    .msg.error { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#f87171; }
+    .msg.success { background:rgba(74,222,128,0.1); border:1px solid rgba(74,222,128,0.3); color:#4ade80; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <div class="logo-icon">A</div>
+      <h1>Aria</h1>
+      <p>AI Academic Assistant</p>
+    </div>
+
+    {% if message %}
+    <div class="msg {{ 'error' if error else 'success' }}">{{ message }}</div>
+    {% endif %}
+
+    <div class="tabs">
+      <button class="tab {{ 'active' if mode == 'login' }}" onclick="setMode('login')">Login</button>
+      <button class="tab {{ 'active' if mode == 'register' }}" onclick="setMode('register')">Register</button>
+    </div>
+
+    <form method="POST" id="auth-form">
+      <input type="hidden" name="mode" id="mode-input" value="{{ mode }}"/>
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" name="username" placeholder="Enter your username" required autocomplete="off"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Enter your password" required/>
+      </div>
+      <button type="submit" class="btn" id="submit-btn">{{ 'Login' if mode == 'login' else 'Create Account' }}</button>
+    </form>
+  </div>
+
+  <script>
+    function setMode(m) {
+      document.getElementById("mode-input").value = m;
+      document.getElementById("submit-btn").textContent = m === "login" ? "Login" : "Create Account";
+      document.querySelectorAll(".tab").forEach((t,i) => t.classList.toggle("active", (i===0 && m==="login") || (i===1 && m==="register")));
+      document.getElementById("auth-form").submit();
+    }
+  </script>
+</body>
+</html>

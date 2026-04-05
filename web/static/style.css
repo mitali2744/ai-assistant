@@ -359,3 +359,7 @@ body {
 
 .resp-table tr:last-child td { border-bottom: none; }
 .resp-table tr:hover td { background: rgba(124,58,237,0.08); }
+
+.user-badge { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.25); color: #4ade80; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+.logout-btn { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); color: #f87171; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; text-decoration: none; transition: all 0.2s; }
+.logout-btn:hover { background: rgba(239,68,68,0.2); }

@@ -2,15 +2,15 @@ from database.db import get_connection
 from datetime import datetime
 from core.gamification import add_xp, update_streak
 
-def add_task(task, priority="medium", category="general", deadline=None):
+def add_task(task, priority="medium", category="general", deadline=None, user_id=1):
     task = task.strip()
     if not task:
         return "Please provide a task name."
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "INSERT INTO tasks (task, priority, category, deadline) VALUES (?, ?, ?, ?)",
-        (task, priority.lower(), category.lower(), deadline)
+        "INSERT INTO tasks (user_id, task, priority, category, deadline) VALUES (?, ?, ?, ?, ?)",
+        (user_id, task, priority.lower(), category.lower(), deadline)
     )
     conn.commit()
     conn.close()
@@ -22,26 +22,24 @@ def add_task(task, priority="medium", category="general", deadline=None):
     add_xp(5, "added a task")
     return msg + "."
 
-def show_tasks(category=None, priority=None):
+def show_tasks(category=None, priority=None, user_id=1):
     conn = get_connection()
     cursor = conn.cursor()
-    query = "SELECT id, task, status, priority, category, deadline FROM tasks"
-    filters, params = [], []
+    query = "SELECT id, task, status, priority, category, deadline FROM tasks WHERE user_id=?"
+    params = [user_id]
     if category:
-        filters.append("category=?")
+        query += " AND category=?"
         params.append(category.lower())
     if priority:
-        filters.append("priority=?")
+        query += " AND priority=?"
         params.append(priority.lower())
-    if filters:
-        query += " WHERE " + " AND ".join(filters)
     query += " ORDER BY CASE priority WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END, created_at DESC"
     cursor.execute(query, params)
     tasks = cursor.fetchall()
     conn.close()
     if not tasks:
         return "You have no tasks right now."
-    lines = ["📋 Your Tasks\n" + "─" * 40]
+    lines = ["Your Tasks\n" + "-" * 40]
     for t in tasks:
         status_icon = "✅" if t[2] == "completed" else "⏳"
         pri_icon = "🔴" if t[3] == "high" else "🟡" if t[3] == "medium" else "🟢"
@@ -53,62 +51,64 @@ def show_tasks(category=None, priority=None):
         lines.append(line)
     return "\n".join(lines)
 
-def complete_task(task_id):
+def complete_task(task_id, user_id=1):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT priority FROM tasks WHERE id=?", (task_id,))
+    cursor.execute("SELECT priority FROM tasks WHERE id=? AND user_id=?", (task_id, user_id))
     row = cursor.fetchone()
-    priority = row[0] if row else "medium"
+    if not row:
+        conn.close()
+        return f"Task {task_id} not found."
+    priority = row[0]
     cursor.execute(
-        "UPDATE tasks SET status='completed', completed_at=? WHERE id=?",
-        (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), task_id)
+        "UPDATE tasks SET status='completed', completed_at=? WHERE id=? AND user_id=?",
+        (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), task_id, user_id)
     )
     conn.commit()
     conn.close()
-
     xp_amount = {"high": 30, "medium": 20, "low": 10}.get(priority, 20)
     xp_msg = add_xp(xp_amount, f"completed {priority} priority task")
     streak_msg = update_streak(priority=priority)
-
     msg = f"Task {task_id} marked as completed! Great work!"
     if streak_msg:
         msg += " " + streak_msg
     msg += " | " + xp_msg
     return msg
 
-def delete_task(task_id):
+def delete_task(task_id, user_id=1):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM tasks WHERE id=?", (task_id,))
+    cursor.execute("DELETE FROM tasks WHERE id=? AND user_id=?", (task_id, user_id))
     conn.commit()
     conn.close()
     return f"Task {task_id} deleted."
 
-def get_task_counts():
+def get_task_counts(user_id=1):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT status, COUNT(*) FROM tasks GROUP BY status")
+    cursor.execute("SELECT status, COUNT(*) FROM tasks WHERE user_id=? GROUP BY status", (user_id,))
     rows = cursor.fetchall()
     conn.close()
     return {row[0]: row[1] for row in rows}
 
-def get_due_today():
+def get_due_today(user_id=1):
     today = datetime.now().strftime("%Y-%m-%d")
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT id, task, priority FROM tasks WHERE deadline=? AND status='pending'",
-        (today,)
+        "SELECT id, task, priority FROM tasks WHERE deadline=? AND status='pending' AND user_id=?",
+        (today, user_id)
     )
     tasks = cursor.fetchall()
     conn.close()
     return tasks
 
-def get_all_pending():
+def get_all_pending(user_id=1):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT id, task, priority, category, deadline FROM tasks WHERE status='pending' ORDER BY deadline ASC"
+        "SELECT id, task, priority, category, deadline FROM tasks WHERE status='pending' AND user_id=? ORDER BY deadline ASC",
+        (user_id,)
     )
     tasks = cursor.fetchall()
     conn.close()

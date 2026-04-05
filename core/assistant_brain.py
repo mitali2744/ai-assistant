@@ -100,7 +100,7 @@ def _parse_add_task(query):
 
     return task, priority, category, deadline
 
-def process_query(query):
+def process_query(query, user_id=1):
     query = query.strip().strip(".,!?")
     q = query.lower().strip(".,!?")
 
@@ -149,7 +149,7 @@ def process_query(query):
         task, priority, category, deadline = _parse_add_task(q)
         if not task:
             return "PROMPT_TASK"
-        return add_task(task, priority, category, deadline)
+        return add_task(task, priority, category, deadline, user_id=user_id)
 
     if "show tasks" in q or "list tasks" in q or "my tasks" in q:
         # Filter by priority: "show high tasks"
@@ -158,18 +158,18 @@ def process_query(query):
         # Filter by category: "show tasks category math"
         c_match = re.search(r"category\s+(\w+)", q)
         category = c_match.group(1) if c_match else None
-        return show_tasks(category=category, priority=priority)
+        return show_tasks(category=category, priority=priority, user_id=user_id)
 
     if "complete task" in q or "mark task" in q or "finish task" in q:
         num = _extract_number(q)
         if num:
-            return complete_task(num) + " " + get_random_quote()
+            return complete_task(num, user_id=user_id) + " " + get_random_quote()
         return "Please specify the task number to complete."
 
     if "delete task" in q or "remove task" in q:
         num = _extract_number(q)
         if num:
-            return delete_task(num)
+            return delete_task(num, user_id=user_id)
         return "Please specify the task number to delete."
 
     if "productivity" in q or "analyze" in q or "performance" in q:
