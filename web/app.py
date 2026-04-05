@@ -14,12 +14,15 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "aria_secret_key_2026")
 
 set_speak_callback(lambda text: None)
-try:
-    init_db()
-except Exception:
-    pass
 
-def get_user_id():
+@app.before_request
+def ensure_db():
+    try:
+        init_db()
+    except Exception:
+        pass
+
+
     return session.get("user_id", 1)
 
 def get_username():

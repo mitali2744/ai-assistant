@@ -9,6 +9,10 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from sklearn.linear_model import LinearRegression
 from sklearn.cluster import KMeans
+from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -230,3 +234,39 @@ def show_dataset_insights():
     img_b64 = base64.b64encode(buf.read()).decode("utf-8")
     plt.close()
     return f"IMAGE:{img_b64}"
+
+def predict_pass_fail(studytime, failures, absences, goout=3, health=3):
+    """SVM-based pass/fail classification (G3 >= 10 = pass)."""
+    df = _load_uci().copy()
+    features = ["studytime", "failures", "absences", "goout", "health"]
+    df = df[features + ["G3"]].apply(pd.to_numeric, errors="coerce").dropna()
+
+    X = df[features].values
+    y = (df["G3"].values >= 10).astype(int)  # 1 = pass, 0 = fail
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    scaler = StandardScaler()
+    X_train_s = scaler.fit_transform(X_train)
+    X_test_s  = scaler.transform(X_test)
+
+    model = SVC(kernel="rbf", C=1.0, gamma="scale", random_state=42)
+    model.fit(X_train_s, y_train)
+
+    acc = accuracy_score(y_test, model.predict(X_test_s))
+
+    user_input = scaler.transform([[studytime, failures, absences, goout, health]])
+    prediction = model.predict(user_input)[0]
+    confidence = model.decision_function(user_input)[0]
+
+    result = "Pass ✅" if prediction == 1 else "Fail ❌"
+    tip = (
+        "Keep it up! Maintain your study habits." if prediction == 1
+        else "At risk of failing. Try increasing study time and reducing absences."
+    )
+
+    return (
+        f"SVM Pass/Fail Prediction (RBF kernel, {len(df)} records, accuracy: {acc*100:.1f}%): "
+        f"{result}. {tip} "
+        f"[studytime={studytime}, failures={failures}, absences={absences}]"
+    )

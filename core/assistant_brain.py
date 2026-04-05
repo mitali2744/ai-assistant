@@ -3,7 +3,7 @@ from core.command_handler import add_task, show_tasks, complete_task, delete_tas
 from core.productivity import analyze_productivity, show_productivity_graph
 from core.quotes import get_random_quote
 from core.scheduler import check_deadlines, generate_study_schedule, predict_completion
-from core.dataset_analysis import get_study_recommendation, predict_grade, cluster_student_profile, show_dataset_insights, get_exam_insights, get_dataset_summary
+from core.dataset_analysis import get_study_recommendation, predict_grade, cluster_student_profile, show_dataset_insights, get_exam_insights, get_dataset_summary, predict_pass_fail
 from core.flashcards import add_flashcard, show_flashcards, start_quiz, check_answer, is_quiz_active, delete_flashcard
 from core.groups import register_user, create_group, join_group, add_group_task, show_group_tasks, complete_group_task, group_productivity, list_groups, add_member, show_members, get_group_activity
 
@@ -34,6 +34,7 @@ ML & DATASET
   recommend          - study advice from 5500 student records
   grade predict      - predict your grade using Linear Regression
   my profile         - classify your student type using K-Means
+  pass fail          - SVM pass/fail prediction
   exam insights      - analyze exam performance dataset
   dataset insights   - full dataset visualization graph
   dataset summary    - show dataset size and sources
@@ -224,6 +225,15 @@ def process_query(query, user_id=1):
         absences  = int(nums[2]) if len(nums) > 2 else 5
         goout     = int(nums[3]) if len(nums) > 3 else 3
         return cluster_student_profile(studytime, failures, absences, goout)
+
+    if "pass fail" in q or "will i pass" in q or "pass or fail" in q or "svm" in q:
+        nums = re.findall(r"\d+", q)
+        studytime = int(nums[0]) if len(nums) > 0 else 2
+        failures  = int(nums[1]) if len(nums) > 1 else 0
+        absences  = int(nums[2]) if len(nums) > 2 else 5
+        goout     = int(nums[3]) if len(nums) > 3 else 3
+        health    = int(nums[4]) if len(nums) > 4 else 3
+        return predict_pass_fail(studytime, failures, absences, goout, health)
 
     if "dataset" in q or "insights" in q or "dataset graph" in q:
         return show_dataset_insights()
