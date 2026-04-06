@@ -68,6 +68,7 @@ OTHER
   stop               - exit"""
 
 def _extract_number(query):
+    # extract the first number found in a string (used for task IDs, timer minutes etc.)
     numbers = re.findall(r"\d+", query)
     return int(numbers[0]) if numbers else None
 
@@ -102,6 +103,7 @@ def _parse_add_task(query):
     return task, priority, category, deadline
 
 def process_query(query, user_id=1):
+    # main routing function — matches user input to the right command/feature
     query = query.strip().strip(".,!?")
     q = query.lower().strip(".,!?")
 

@@ -1,5 +1,6 @@
-import random
+import random   # used to pick a random quote
 
+# list of motivational quotes shown after completing tasks
 QUOTES = [
     "The secret of getting ahead is getting started. — Mark Twain",
     "It always seems impossible until it's done. — Nelson Mandela",
@@ -16,4 +17,5 @@ QUOTES = [
 ]
 
 def get_random_quote():
+    # pick and return one random quote from the list
     return random.choice(QUOTES)
